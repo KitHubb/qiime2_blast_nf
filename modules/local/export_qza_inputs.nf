@@ -14,6 +14,14 @@ process EXPORT_QZA_INPUTS {
 
     script:
     """
+    export TMPDIR="\$PWD/qiime_tmp"
+    export TMP="\$TMPDIR"
+    export TEMP="\$TMPDIR"
+    export NUMBA_CACHE_DIR="\$PWD/numba_cache"
+    export MPLCONFIGDIR="\$PWD/matplotlib_cache"
+    export XDG_CACHE_HOME="\$PWD/xdg_cache"
+    mkdir -p "\$TMPDIR" "\$NUMBA_CACHE_DIR" "\$MPLCONFIGDIR" "\$XDG_CACHE_HOME"
+
     qiime tools export --input-path "${repseq_qza}" --output-path repseq_export
     qiime tools export --input-path "${taxonomy_qza}" --output-path taxonomy_export
     """

@@ -1,5 +1,7 @@
 nextflow.enable.dsl=2
 
+include { IMPORT_RECONCILED_TAXONOMY } from './modules/local/import_taxonomy'
+
 include { NATIVE_BLAST } from './modules/local/blast_native'
 include { QIIME_BLAST } from './modules/local/blast_qiime'
 include { EXPORT_QZA_INPUTS } from './modules/local/export_qza_inputs'
@@ -18,6 +20,7 @@ workflow {
     EXPORT_QZA_INPUTS(repseq, taxonomy)
     if (params.backend == 'native') {
         NATIVE_BLAST(EXPORT_QZA_INPUTS.out.repseq_fasta, EXPORT_QZA_INPUTS.out.taxonomy_tsv)
+        IMPORT_RECONCILED_TAXONOMY(NATIVE_BLAST.out.taxonomy_qiime)
     } else if (params.backend == 'qiime') {
         reads = file(params.reference_reads, checkIfExists: true)
         ref_tax = file(params.reference_taxonomy, checkIfExists: true)

@@ -9,6 +9,7 @@ process NATIVE_BLAST {
     path taxonomy
     output:
     path '*.tsv', emit: tables
+    path 'taxonomy_blast_qiime.tsv', emit: taxonomy_qiime
     script:
     def scripts = "${projectDir}/bin"
     """
