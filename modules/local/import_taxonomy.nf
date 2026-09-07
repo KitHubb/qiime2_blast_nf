@@ -2,7 +2,7 @@ process IMPORT_RECONCILED_TAXONOMY {
     tag 'import_reconciled_taxonomy'
     label 'qiime_export'
     container params.qiime_sif
-    publishDir params.outdir, mode: 'copy', overwrite: true
+    publishDir params.outdir, mode: 'copy', overwrite: true, pattern: 'taxonomy_blast.qza'
 
     input:
     path taxonomy_tsv

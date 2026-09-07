@@ -163,7 +163,6 @@ def main():
     ap.add_argument("--qiime-normalized", required=True)
     ap.add_argument("--blast-taxonomy", required=True)
     ap.add_argument("--output-dir", required=True)
-    ap.add_argument("--min-qiime-confidence", type=float, default=0.7)
     ap.add_argument("--max-evalue", type=float, default=1e-10, help="Kept for backward compatibility.")
     ap.add_argument("--min-pident", type=float, default=99.0, help="Kept for backward compatibility.")
     ap.add_argument("--min-qcovus", type=float, default=80.0, help="Kept for backward compatibility.")

@@ -2,7 +2,6 @@ process EXPORT_QZA_INPUTS {
     tag 'export_qza_inputs'
     label 'qiime_export'
     container params.qiime_sif
-    publishDir "${params.outdir}/inputs", mode: 'copy'
 
     input:
     path repseq_qza, stageAs: 'repseq_input.qza'

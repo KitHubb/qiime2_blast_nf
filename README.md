@@ -79,7 +79,6 @@ When replacement is selected, the code uses BLAST lineage values from phylum thr
 | `--blast_species_min_pident` | `99.0` | Final native replacement identity minimum (%) |
 | `--blast_species_min_qcovus` | `99.0` | Final native replacement coverage minimum (%) |
 | `--blast_species_max_evalue` | `1e-10` | Final native replacement E-value maximum |
-| `--blast_min_qiime_confidence` | `0.7` | Accepted by the script but currently unused in replacement decisions |
 
 Candidate filters run before replacement thresholds. Lowering only a species threshold cannot recover a hit already removed by candidate selection.
 
@@ -106,7 +105,19 @@ Identity and coverage settings use percentages at the Nextflow interface and are
 
 ## Expected outputs
 
-Native output files are placed directly under `--outdir`:
+Only these four native results are published under `--outdir`:
+
+```text
+results/
+  taxonomy_blast.qza
+  taxonomy_blast_report.tsv
+  taxonomy_blast_changed.tsv
+  taxonomy_blast_evidence.tsv
+```
+
+Other generated files (QZV, exported FASTA/TSV, raw hits, candidates, lineage and the QZA import TSV) remain in task directories under `work/` or `-work-dir`. These directories support inspection and `-resume` until explicitly cleaned. No save-intermediates option is currently implemented. Files already published by earlier runs are not automatically removed.
+
+The following table describes both published and intermediate files; only the four files above are published:
 
 | File | Format / content |
 | --- | --- |
@@ -121,12 +132,12 @@ Native output files are placed directly under `--outdir`:
 | `blast_candidates_top5.tsv` | Filtered/ranked candidates; filename stays top5 even if blast_top_n changes |
 | `blast_taxonomy.tsv` | Top1 lineage, top2 evidence and ambiguity flag per ASV with candidates |
 | `taxonkit_lineage.tsv` | TaxID-to-lineage mapping |
-| `inputs/dna-sequences.fasta` | Exported input representative sequences |
-| `inputs/taxonomy.tsv` | Exported original taxonomy |
+| `repseq_export/dna-sequences.fasta` | Exported input representative sequences |
+| `taxonomy_export/taxonomy.tsv` | Exported original taxonomy |
 
 Final taxonomy is based on the original taxonomy ASV set. The changed table has the same columns as the evidence table and selects statuses starting with `blast_species_` or `blast_top1_species_`, or containing `mismatch`/`conflict`. It is **not** a strict before/after taxonomy difference table: replacement decisions may leave identical text, and retained genus mismatches may appear. `qiime_retained_ambiguous_blast` is not included by that status filter; inspect the full evidence table for ambiguity.
 
-QIIME backend outputs are `taxonomy_qiime_blast.qza`, `taxonomy_qiime_blast.qzv`, `taxonomy_qiime_blast.tsv`, and `blast_search_results.qza` (`FeatureData[BLAST6]`), plus input exports. These represent the independent QIIME BLAST classification, not the native reconciled result.
+QIIME backend outputs are `taxonomy_qiime_blast.qza`, `taxonomy_qiime_blast.qzv`, `taxonomy_qiime_blast.tsv`, and `blast_search_results.qza` (`FeatureData[BLAST6]`), with input exports retained only in the export task work directory. These represent the independent QIIME BLAST classification, not the native reconciled result.
 
 ### Matrix columns
 
