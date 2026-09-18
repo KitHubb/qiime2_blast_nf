@@ -1,6 +1,6 @@
 # QIIME_blast
 
-[English](#english) | [한국어](#한국어) · [Detailed documentation / 상세 문서](docs/wiki/Home.md)
+[English](#english) | [한국어](#한국어) · [Detailed documentation / 상세 문서](https://github.com/KitHubb/qiime2_blast_nf/wiki/Home)
 
 ## English
 
@@ -34,7 +34,7 @@ The container files are stored at these paths in our lab:
 | `--qiime_sif` | `/data/software/singularity/qiime2_amplicon_2025.7.sif` |
 | `--blast_taxonomy_sif` | `/data/software/singularity/qiime_blast/blast_taxonomy_2026-06.sif` |
 
-Override these paths for your installation. SIF binaries are excluded from Git. The QIIME image comes from `quay.io/qiime2/amplicon:2025.7`; the custom native image recipe is included in [containers/blast_taxonomy.def](containers/blast_taxonomy.def). See [container setup](docs/wiki/Containers.md). Default resources are 8 CPUs/32 GB for either BLAST backend and 1 CPU/4 GB for QIIME export/import and taxonomy processing.
+Override these paths for your installation. SIF binaries are excluded from Git. The QIIME image comes from `quay.io/qiime2/amplicon:2025.7`; the custom native image recipe is included in [containers/blast_taxonomy.def](containers/blast_taxonomy.def). See [container setup](https://github.com/KitHubb/qiime2_blast_nf/wiki/Containers). Default resources are 8 CPUs/32 GB for either BLAST backend and 1 CPU/4 GB for QIIME export/import and taxonomy processing.
 
 ### 3. Supported features
 
@@ -91,7 +91,7 @@ The default policy, `--blast_lineage_policy species_only`, preserves Domain thro
 | Query coverage | `--blast_min_qcovus 80` | `--blast_species_min_qcovus 99` |
 | E-value | `--blast_max_evalue 1e-10` | `--blast_species_max_evalue 1e-10` |
 
-Native search retrieves up to 20 targets (`--blast_retrieval_n`) and retains up to 5 candidate rows (`--blast_top_n`) by default. Candidate filters run first. Ambiguity detection compares only top1 and top2; a single retained candidate cannot reveal a tie conflict. Full selection and report details are in the [usage guide](docs/wiki/Usage.md).
+Native search retrieves up to 20 targets (`--blast_retrieval_n`) and retains up to 5 candidate rows (`--blast_top_n`) by default. Candidate filters run first. Ambiguity detection compares only top1 and top2; a single retained candidate cannot reveal a tie conflict. Full selection and report details are in the [usage guide](https://github.com/KitHubb/qiime2_blast_nf/wiki/Usage).
 
 #### QIIME BLAST
 
@@ -123,7 +123,7 @@ nextflow -C nextflow.config run main.nf \
   --taxonomy_profile silva138 --outdir results/postprocessed
 ```
 
-Choose `silva138`, `gtdb_r220` or `gg2` for the corresponding reference. `auto` preserves input rank prefixes without guessing the DB; generic, UNITE and EUKARYOME profiles are also available. Normalization keeps empty QIIME rank positions and reference-specific names. Both Python scripts can also run independently with Python 3 and pandas; see [reference rules](docs/taxonomy_profiles.md) and [standalone usage](docs/wiki/Usage.md).
+Choose `silva138`, `gtdb_r220` or `gg2` for the corresponding reference. `auto` preserves input rank prefixes without guessing the DB; generic, UNITE and EUKARYOME profiles are also available. Normalization keeps empty QIIME rank positions and reference-specific names. Both Python scripts can also run independently with Python 3 and pandas; see [reference rules](https://github.com/KitHubb/qiime2_blast_nf/wiki/taxonomy_profiles) and [standalone usage](https://github.com/KitHubb/qiime2_blast_nf/wiki/Usage).
 
 All execution modes produce the same final report format.
 
@@ -156,7 +156,7 @@ nextflow -C nextflow.config run main.nf -profile test
 nextflow -C nextflow.config run main.nf -profile test_postprocess
 ```
 
-These profiles use bundled synthetic inputs and check output against an expected table. `test` includes normalization and QIIME artifact generation; `test_postprocess` checks final postprocessing directly. Neither needs a BLAST DB. A mismatch fails the workflow; success writes `<outdir>/test/test_report.txt`. [Test details](docs/wiki/Tests.md)
+These profiles use bundled synthetic inputs and check output against an expected table. `test` includes normalization and QIIME artifact generation; `test_postprocess` checks final postprocessing directly. Neither needs a BLAST DB. A mismatch fails the workflow; success writes `<outdir>/test/test_report.txt`. [Test details](https://github.com/KitHubb/qiime2_blast_nf/wiki/Test)
 
 ## 한국어
 
@@ -192,7 +192,7 @@ Nextflow는 분석 단계와 중간 파일을 관리합니다. 현재 설정은 
 
 외부 환경에서 사용할 때는 위 옵션으로 경로를 바꿀 수 있습니다.
 SIF 파일 자체는 Git에 포함하지 않지만, QIIME 이미지는 `quay.io/qiime2/amplicon:2025.7`에서 받을 수 있고,
-직접 만든 native 이미지의 [빌드 정의](containers/blast_taxonomy.def)도 제공합니다. [컨테이너 준비 방법](docs/wiki/Containers.md)을 참고하세요.
+직접 만든 native 이미지의 [빌드 정의](containers/blast_taxonomy.def)도 제공합니다. [컨테이너 준비 방법](https://github.com/KitHubb/qiime2_blast_nf/wiki/Containers)을 참고하세요.
 기본 자원은 BLAST 단계 각각 8 CPU/32 GB, QIIME 입출력·taxonomy 처리 단계 1 CPU/4 GB입니다.
 
 ### 3. 지원 기능
@@ -253,7 +253,7 @@ taxonomy 보정에는 다음 세 가지 옵션을 사용할 수 있습니다.
 | Query coverage | `--blast_min_qcovus 80` | `--blast_species_min_qcovus 99` |
 | E-value | `--blast_max_evalue 1e-10` | `--blast_species_max_evalue 1e-10` |
 
-기본 검색 대상 수는 20(`--blast_retrieval_n`), 보존 후보 수는 5(`--blast_top_n`)입니다. 후보 선별이 먼저 실행되므로 Species 기준만 낮춰도 제외된 후보가 복원되지는 않습니다. 모호성 검사는 top1·top2만 비교하며 후보가 하나면 동률 충돌을 확인할 수 없습니다. 상세 선별 규칙과 보고서 해석은 [상세 사용법](docs/wiki/Usage.md)에 있습니다.
+기본 검색 대상 수는 20(`--blast_retrieval_n`), 보존 후보 수는 5(`--blast_top_n`)입니다. 후보 선별이 먼저 실행되므로 Species 기준만 낮춰도 제외된 후보가 복원되지는 않습니다. 모호성 검사는 top1·top2만 비교하며 후보가 하나면 동률 충돌을 확인할 수 없습니다. 상세 선별 규칙과 보고서 해석은 [상세 사용법](https://github.com/KitHubb/qiime2_blast_nf/wiki/Usage)에 있습니다.
 
 #### QIIME BLAST 분류
 
@@ -285,7 +285,7 @@ nextflow -C nextflow.config run main.nf \
 ```
 
 DB에 따라 `silva138`, `gtdb_r220`, `gg2`를 선택합니다. 기본 `auto`는 DB를 추측하지 않고 입력 계급 접두사를 보존하며 generic·UNITE·EUKARYOME 프로필도 제공합니다.
-정규화는 빈 계급의 위치와 DB 고유 이름을 유지합니다. 두 Python 스크립트는 Python 3와 pandas만으로 독립 실행할 수도 있습니다. [DB별 규칙](docs/taxonomy_profiles.md) · [독립 실행 방법](docs/wiki/Usage.md)
+정규화는 빈 계급의 위치와 DB 고유 이름을 유지합니다. 두 Python 스크립트는 Python 3와 pandas만으로 독립 실행할 수도 있습니다. [DB별 규칙](https://github.com/KitHubb/qiime2_blast_nf/wiki/taxonomy_profiles) · [독립 실행 방법](https://github.com/KitHubb/qiime2_blast_nf/wiki/Usage)
 
 모든 실행 모드는 마지막에 같은 보고용 TSV를 생성합니다.
 
@@ -319,7 +319,7 @@ nextflow -C nextflow.config run main.nf -profile test_postprocess
 ```
 
 내장 합성 입력으로 실제 결과와 예상 표를 비교합니다. `test`는 정규화와 QIIME artifact 생성까지, `test_postprocess`는 후가공 경로를 검사합니다.
-BLAST DB는 필요하지 않습니다. 결과가 다르면 워크플로가 실패하고, 성공하면 `<outdir>/test/test_report.txt`를 생성합니다. [테스트 상세](docs/wiki/Tests.md)
+BLAST DB는 필요하지 않습니다. 결과가 다르면 워크플로가 실패하고, 성공하면 `<outdir>/test/test_report.txt`를 생성합니다. [테스트 상세](https://github.com/KitHubb/qiime2_blast_nf/wiki/Test)
 
 ### 4. 추가 예정 기능
 
