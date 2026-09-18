@@ -27,7 +27,7 @@ Nextflow manages the analysis steps and their intermediate files. The current co
 | Native BLAST image recipe | Python 3.10, BLAST 2.16.0, TaxonKit 0.18.0, csvtk 0.30.0 | Search, TaxID lineage resolution and table processing |
 | Native Python packages in recipe | pandas 2.2.3, NumPy 1.26.4, PyYAML 6.0.2 | Taxonomy data processing |
 
-QIIME 2 **2025.7 is the supported environment for this release**; other QIIME versions have not been verified. Workflow tests exercise normalization, QZA import/validation, QZV generation and postprocessing; they do not run a full QIIME BLAST search. Native image versions above are specified by its build recipe.
+QIIME 2 **2025.7 is the supported environment for this release**; other QIIME versions have not been verified. Workflow tests exercise normalization, QZA import/validation, QZV generation and postprocessing; they do not run a full QIIME BLAST search. The native image tool versions listed above are specified in its build recipe.
 
 | Container option | Default local path |
 | --- | --- |
@@ -66,7 +66,7 @@ nextflow -C nextflow.config run main.nf \
   --outdir results/native -work-dir work/native -resume
 ```
 
-`--blast_db` is a database **prefix**, not a directory or a `.nin` file. `-C` selects this repository's configuration; `-work-dir` stores intermediate tasks and `-resume` reuses eligible cached work. Preserve the task directory and Nextflow cache to resume.
+`--blast_db` is a database **prefix**, not a directory or a `.nin` file. `-C` selects this repository's configuration; `-work-dir` sets the directory for intermediate task files and `-resume` reuses eligible cached work. Preserve the task directory and Nextflow cache to resume.
 
 | `--blast_reconcile_mode` | Behavior |
 | --- | --- |
@@ -74,7 +74,7 @@ nextflow -C nextflow.config run main.nf \
 | `species_missing_top1_rescue` | Keep assigned Species; allow a qualifying top1 even when top1/top2 are ambiguous |
 | `same_genus_only` | Allow Species replacement when explicit, nonempty genera match and the top hit is unambiguous |
 
-Default `--blast_lineage_policy species_only` preserves Domain through Genus and requires genus agreement in every mode. Genus comparison ignores case but preserves DB-specific suffixes. Use `--blast_lineage_policy blast_lineage` to explicitly allow upper-lineage replacement. Original Confidence is retained; it is not a newly calculated BLAST confidence.
+The default policy, `--blast_lineage_policy species_only`, preserves Domain through Genus and requires genus agreement in every mode. Genus comparison ignores case but preserves DB-specific suffixes. Use `--blast_lineage_policy blast_lineage` to explicitly allow upper-lineage replacement. Original Confidence is retained; it is not a newly calculated BLAST confidence.
 
 | Threshold | Candidate selection | Final Species replacement |
 | --- | --- | --- |
@@ -96,7 +96,7 @@ nextflow -C nextflow.config run main.nf \
   --outdir results/qiime -resume
 ```
 
-QIIME uses `--blast_top_n` as maxaccepts and minimum consensus 0.51. Identity and coverage options take percentages; QIIME coverage is per HSP (`query-cov`), while native coverage uses `qcovus`. Native Species replacement thresholds do not apply to this backend.
+QIIME uses `--blast_top_n` as maxaccepts and a minimum consensus of 0.51. Identity and coverage options take percentages; QIIME coverage is per HSP (`query-cov`), while native coverage uses `qcovus`. Native Species replacement thresholds do not apply to this backend.
 
 #### Normalization and postprocessing without BLAST
 
@@ -134,7 +134,7 @@ Filled cells use the nearest genuinely assigned ancestor and never gain a destin
 | QIIME | `taxonomy_qiime_blast.qza`, `.qzv`, `.tsv`, and `blast_search_results.qza` |
 | Normalize only | `normalized/` TSVs, `taxonomy_normalized.qza`, `taxonomy_normalized.qzv` |
 
-Native raw hits, candidates, lineage, import TSV and QZV remain in task directories. The native `changed` table selects decision statuses and is not a strict before/after difference table; inspect the evidence table for full decisions. The final postprocessing change log records actual changed cells.
+Native raw hits, candidates, lineage, import TSV and QZV remain in task directories. The native `changed` table contains rows selected by decision status and is not a strict before/after difference table; inspect the evidence table for full decisions. The final postprocessing change log records actual changed cells.
 
 ```bash
 nextflow -C nextflow.config run main.nf -profile test
@@ -153,7 +153,7 @@ QIIME_blast는 ITSdetector에서 파생된 독립형 Nextflow DSL2 파이프라�
 
 Native backend에서는 기존 상위 분류를 유지하면서 미분류 Species를 보완할 수 있습니다. **BLAST 없이 기존 taxonomy만 정규화하거나 후가공하는 기능**도 제공합니다. SILVA 138·GTDB r220·GG2 결과의 빈 계급을 같은 규칙으로 처리해 최종 보고용 표를 만듭니다.
 
-**현재 지원 범위는 full-length 16S rRNA 데이터 전용입니다.** V3–V4, V4처럼 짧은 영역을 증폭한 16S amplicon에 BLAST 보정 기능을 적용하려면 대상 영역, 참조 DB, identity·coverage 기준 및 가능한 분류 해상도를 추가로 검토·검증해야 합니다. 현재 기본값을 그대로 적용할 수 있다고 가정하지 않습니다. 관련 논의: [QIIME 2 포럼 — 16S 기반 Genus 분류](https://forum.qiime2.org/t/how-to-find-the-genus-level-from-bacteria-with-from-16s-method/33791/4?u=soyeon_kim).
+**현재는 full-length 16S rRNA 데이터만 지원합니다.** V3–V4, V4처럼 짧은 영역을 증폭한 16S amplicon에 BLAST 보정 기능을 적용하려면 대상 영역, 참조 DB, identity·coverage 기준 및 해당 영역에서 얻을 수 있는 분류 해상도를 추가로 검토·검증해야 합니다. 현재 기본값을 그대로 적용해도 되는지는 별도로 확인해야 합니다. 관련 논의: [QIIME 2 포럼 — 16S 기반 Genus 분류](https://forum.qiime2.org/t/how-to-find-the-genus-level-from-bacteria-with-from-16s-method/33791/4?u=soyeon_kim).
 
 ### 2. Nextflow 및 내부 도구 환경·버전
 
@@ -170,14 +170,14 @@ Nextflow는 분석 단계와 중간 파일을 관리합니다. 현재 설정은 
 | Native BLAST 이미지 빌드 정의 | Python 3.10, BLAST 2.16.0, TaxonKit 0.18.0, csvtk 0.30.0 | 검색·TaxID 계통 확인·표 처리 |
 | Native 이미지의 Python 패키지 지정값 | pandas 2.2.3, NumPy 1.26.4, PyYAML 6.0.2 | 분류 데이터 처리 |
 
-현재 **지원 기준은 QIIME 2 2025.7**이며 다른 QIIME 버전은 미검증입니다. 워크플로 테스트는 정규화, QZA import·유효성 검사, QZV 생성, 후가공을 확인하며 QIIME BLAST 전체 검색은 포함하지 않습니다. Native 이미지 버전은 빌드 정의에 지정된 값입니다.
+현재 **지원 기준은 QIIME 2 2025.7**이며 다른 QIIME 버전은 미검증입니다. 워크플로 테스트는 정규화, QZA import·유효성 검사, QZV 생성, 후가공을 확인하며 QIIME BLAST 전체 검색은 포함하지 않습니다. 위에 나열한 Native 이미지 내부 도구의 버전은 빌드 정의에 지정된 값입니다.
 
 | 컨테이너 옵션 | 기본 로컬 경로 |
 | --- | --- |
 | `--qiime_sif` | `/data/software/singularity/qiime2_amplicon_2025.7.sif` |
 | `--blast_taxonomy_sif` | `/data/software/singularity/qiime_blast/blast_taxonomy_2026-06.sif` |
 
-다른 환경에서는 위 옵션으로 경로를 바꾸세요. SIF 파일 자체는 Git에 포함하지 않습니다. QIIME 이미지는 `quay.io/qiime2/amplicon:2025.7`에서 받을 수 있고, 직접 만든 native 이미지는 [빌드 정의](containers/blast_taxonomy.def)를 제공합니다. [컨테이너 준비 방법](docs/wiki/Containers.md)을 참고하세요. 기본 자원은 BLAST 단계 각각 8 CPU/32 GB, QIIME 입출력·taxonomy 처리 단계 1 CPU/4 GB입니다.
+다른 환경에서는 위 옵션으로 경로를 바꾸세요. SIF 파일 자체는 Git에 포함하지 않습니다. QIIME 이미지는 `quay.io/qiime2/amplicon:2025.7`에서 받을 수 있고, 직접 만든 native 이미지의 [빌드 정의](containers/blast_taxonomy.def)도 제공합니다. [컨테이너 준비 방법](docs/wiki/Containers.md)을 참고하세요. 기본 자원은 BLAST 단계 각각 8 CPU/32 GB, QIIME 입출력·taxonomy 처리 단계 1 CPU/4 GB입니다.
 
 ### 3. 지원 기능
 
@@ -211,7 +211,7 @@ nextflow -C nextflow.config run main.nf \
   --outdir results/native -work-dir work/native -resume
 ```
 
-`--blast_db`에는 디렉터리나 `.nin` 파일이 아닌 DB **prefix**를 넣습니다. `-C`는 저장소 설정 선택, `-work-dir`는 중간 작업 위치, `-resume`은 재사용 가능한 작업의 재개 옵션입니다. 재개하려면 작업 디렉터리와 Nextflow 캐시를 유지하세요.
+`--blast_db`에는 디렉터리나 `.nin` 파일이 아닌 DB **prefix**를 넣습니다. `-C`는 저장소 설정 선택, `-work-dir`는 중간 작업 파일을 저장할 위치, `-resume`은 재사용 가능한 작업의 재개 옵션입니다. 재개하려면 작업 디렉터리와 Nextflow 캐시를 유지하세요.
 
 | `--blast_reconcile_mode` | 동작 |
 | --- | --- |
@@ -219,7 +219,7 @@ nextflow -C nextflow.config run main.nf \
 | `species_missing_top1_rescue` | 기존 Species는 유지하고 top1/top2가 모호해도 기준을 통과한 top1 허용 |
 | `same_genus_only` | 비어 있지 않은 명시적 Genus가 일치하고 hit가 모호하지 않으면 Species 교체 허용 |
 
-기본 `--blast_lineage_policy species_only`는 Domain~Genus를 유지하며 모든 모드에 Genus 일치 조건을 적용합니다. 대소문자는 구분하지 않지만 DB 고유 접미사는 제거하지 않습니다. 상위 계통까지 교체하려면 `--blast_lineage_policy blast_lineage`를 명시하세요. Confidence는 원래 QIIME 값을 유지하며 BLAST 보정 신뢰도를 새로 계산하지 않습니다.
+기본 정책인 `--blast_lineage_policy species_only`는 Domain~Genus를 유지하며 모든 모드에 Genus 일치 조건을 적용합니다. 대소문자는 구분하지 않지만 DB 고유 접미사는 제거하지 않습니다. 상위 계통까지 교체하려면 `--blast_lineage_policy blast_lineage`를 명시하세요. Confidence는 원래 QIIME 값을 유지하며 BLAST 보정 신뢰도를 새로 계산하지 않습니다.
 
 | 기준 | 후보 선별 | 최종 Species 교체 |
 | --- | --- | --- |
@@ -268,7 +268,7 @@ DB에 따라 `silva138`, `gtdb_r220`, `gg2`를 선택합니다. 기본 `auto`는
 | 기존 분류명이 있음 | GTDB/GG2 고유 접미사를 포함해 유지 |
 | 사용할 상위 분류가 없음 | `Unassigned` |
 
-가장 가까운 실제 상위 분류를 근거로 채우며 **`s__g_Bacillus`처럼 목적지 계급 접두사를 덧붙이지 않습니다.** 보고용 표기이며 새 분류를 확정한다는 뜻은 아닙니다. 같은 결과를 다시 후가공해도 표는 바뀌지 않습니다. QIIME artifact와 별도 산출물이며, Domain은 표의 기존 구조와 호환되도록 `Kingdom` 열에 저장하고 `Top_Rank_Prefix=d`로 표시합니다.
+가장 가까운 실제 상위 분류를 근거로 채우며 **`s__g_Bacillus`처럼 채울 칸의 계급 접두사를 덧붙이지 않습니다.** 보고용 표기이며 새 분류를 확정한다는 뜻은 아닙니다. 같은 결과를 다시 후가공해도 표는 바뀌지 않습니다. QIIME artifact와 별도 산출물이며, Domain은 표의 기존 구조와 호환되도록 `Kingdom` 열에 저장하고 `Top_Rank_Prefix=d`로 표시합니다.
 
 #### 출력 및 테스트
 
@@ -279,7 +279,7 @@ DB에 따라 `silva138`, `gtdb_r220`, `gg2`를 선택합니다. 기본 `auto`는
 | QIIME | `taxonomy_qiime_blast.qza`, `.qzv`, `.tsv`, `blast_search_results.qza` |
 | 정규화 전용 | `normalized/`의 TSV, `taxonomy_normalized.qza`, `taxonomy_normalized.qzv` |
 
-Native의 원시 hit·후보·lineage·import TSV·QZV는 작업 디렉터리에 남습니다. Native의 `changed` 표는 판단 상태로 선택한 행이므로 실제 문자열 변경만을 의미하지 않습니다. 전체 판단 근거는 evidence 표에서, 최종 후가공의 실제 칸별 변경은 `taxonomy_postprocess_changes.tsv`에서 확인하세요.
+Native의 원시 hit·후보·lineage·import TSV·QZV는 작업 디렉터리에 남습니다. Native의 `changed` 표에는 판단 상태에 따라 선택한 행이 들어가므로 실제 문자열이 바뀌지 않은 행도 포함될 수 있습니다. 전체 판단 근거는 evidence 표에서, 최종 후가공의 실제 칸별 변경은 `taxonomy_postprocess_changes.tsv`에서 확인하세요.
 
 ```bash
 nextflow -C nextflow.config run main.nf -profile test
