@@ -13,6 +13,7 @@ process QIIME_BLAST {
     path 'blast_search_results.qza', emit: search_results
     path '*.qzv', emit: visualizations
     path '*.tsv', emit: tables
+    path 'taxonomy_qiime_blast.tsv', emit: taxonomy_qiime
     script:
     def identity = (params.blast_min_pident as double) / 100.0
     def coverage = (params.blast_min_qcovus as double) / 100.0

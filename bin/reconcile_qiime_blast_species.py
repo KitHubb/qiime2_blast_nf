@@ -21,6 +21,8 @@ Alternative mode: same_genus_only
 
 import argparse
 import math
+import re
+from normalize_qiime_taxonomy import top_prefix, taxon_string
 from pathlib import Path
 import pandas as pd
 
@@ -44,7 +46,7 @@ def clean_taxon(x):
     x = str(x).strip()
     if x.lower() in MISSING:
         return ""
-    return "_".join(x.split())
+    return x
 
 
 def to_float(x):
@@ -60,7 +62,10 @@ def is_placeholder_value(x):
     x = clean_taxon(x)
     if not x:
         return True
-    return x.lower().endswith(PLACEHOLDER_ENDINGS)
+    # Case-sensitive: GTDB's _G/_P etc. are real taxon suffixes.
+    return (x.endswith(PLACEHOLDER_ENDINGS) or
+            bool(re.search(r"(^|[ _])sp\.?$", x, re.I)) or
+            x.lower() in {"uncultured", "uncultured bacterium", "uncultured_bacterium"})
 
 
 def has_resolved_genus(row):
@@ -72,12 +77,11 @@ def has_resolved_species(row):
 
 
 def final_taxon_string(row, prefix="Final"):
-    parts = []
-    for rank in RANKS:
-        val = clean_taxon(row.get(f"{prefix}_{rank}", ""))
-        if val:
-            parts.append(f"{PREFIX[rank]}{val}")
-    return "; ".join(parts) if parts else "Unassigned"
+    ranks = {rank: clean_taxon(row.get(f"{prefix}_{rank}", "")) for rank in RANKS}
+    domain_prefix = row.get("Top_Rank_Prefix", "")
+    if domain_prefix not in {"d", "k"}:
+        domain_prefix = top_prefix(row.get("QIIME_Taxon_Original", ""))
+    return taxon_string(ranks, domain_prefix)
 
 
 def normalize_blast_kingdom(qiime_kingdom, blast_kingdom):
@@ -85,8 +89,6 @@ def normalize_blast_kingdom(qiime_kingdom, blast_kingdom):
     b = clean_taxon(blast_kingdom)
     if q:
         return q
-    if b.lower() == "eukaryota":
-        return "Fungi"
     return b
 
 
@@ -126,7 +128,7 @@ def decide(row, args):
     qiime_genus_resolved = has_resolved_genus(row)
     qiime_species_resolved = has_resolved_species(row)
 
-    if not blast_species:
+    if is_placeholder_value(blast_species):
         return False, "qiime_retained_no_blast_species", "No BLAST species-level top hit was available.", cutoff_pass, genus_match
 
     if not cutoff_pass:
@@ -171,6 +173,8 @@ def main():
         choices=["species_missing_rescue", "species_missing_top1_rescue", "same_genus_only"],
         default="species_missing_rescue"
     )
+    ap.add_argument("--lineage-policy", choices=["species_only", "blast_lineage"], default="species_only",
+                    help="Preserve source ranks by default; BLAST species needs an exact genus match. blast_lineage explicitly opts into NCBI lineage replacement.")
     ap.add_argument("--species-max-evalue", type=float, default=None)
     ap.add_argument("--species-min-pident", type=float, default=99.0)
     ap.add_argument("--species-min-qcovus", type=float, default=99.0)
@@ -216,7 +220,21 @@ def main():
     evidence_rows = []
     for _, row in merged.iterrows():
         replace, status, reason, cutoff_pass, genus_match = decide(row, args)
-        lineage = use_blast_lineage(row) if replace else use_qiime_lineage(row)
+        if replace and args.lineage_policy == "species_only" and not genus_match:
+            replace = False
+            status = "qiime_retained_genus_mismatch"
+            reason = "Species-only rescue requires exact genus agreement; database suffixes are not stripped."
+        lineage = use_qiime_lineage(row)
+        if replace:
+            if args.lineage_policy == "blast_lineage":
+                lineage = use_blast_lineage(row)
+            else:
+                # build_blast_taxonomy stores NCBI binomials with underscores.
+                species = clean_taxon(row.get("BLAST_Top1_Species", ""))
+                genus = clean_taxon(row.get("BLAST_Top1_Genus", ""))
+                if species.startswith(genus + "_"):
+                    species = genus + " " + species[len(genus) + 1:]
+                lineage["Species"] = species
 
         final_row = {"ASV": row["ASV"], **lineage}
         row_mut = row.copy()
@@ -232,6 +250,7 @@ def main():
         ev["QIIME_GenusResolved"] = has_resolved_genus(row)
         ev["QIIME_SpeciesResolved"] = has_resolved_species(row)
         ev["Reconcile_Mode"] = args.reconcile_mode
+        ev["Lineage_Policy"] = args.lineage_policy
         ev["Species_Min_Pident"] = args.species_min_pident
         ev["Species_Min_Qcovus"] = args.species_min_qcovus
         ev["Species_Max_Evalue"] = args.species_max_evalue
@@ -260,6 +279,7 @@ def main():
     report = []
     report.append(("total_asvs", len(final)))
     report.append(("reconcile_mode", args.reconcile_mode))
+    report.append(("lineage_policy", args.lineage_policy))
     report.append(("species_min_pident", args.species_min_pident))
     report.append(("species_min_qcovus", args.species_min_qcovus))
     report.append(("species_max_evalue", args.species_max_evalue))

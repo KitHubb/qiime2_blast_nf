@@ -1,0 +1,6 @@
+Feature ID	Top_Rank_Prefix	Kingdom	Phylum	Class	Order	Family	Genus	Species	Confidence
+genus	d	Bacteria	Firmicutes	Bacilli	Bacillales	Bacillaceae	Bacillus	g_Bacillus	0.99
+family	d	Bacteria	Firmicutes	Bacilli	Bacillales	Bacillaceae	f_Bacillaceae	f_Bacillaceae	0.9
+assigned	d	Bacteria	Proteobacteria	Gammaproteobacteria	Pseudomonadales	Pseudomonadaceae	Pseudomonas_E_647464	Pseudomonas_E_647464 sp000123456	0.95
+domain	d	Bacteria	d_Bacteria	d_Bacteria	d_Bacteria	d_Bacteria	d_Bacteria	d_Bacteria	0.5
+unknown	k	Unassigned	Unassigned	Unassigned	Unassigned	Unassigned	Unassigned	Unassigned	0.0

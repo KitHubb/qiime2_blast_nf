@@ -1,0 +1,53 @@
+Bootstrap: docker
+From: mambaorg/micromamba:1.5.10
+
+%labels
+    Author KSY
+    Description ITSdetector BLAST taxonomy runtime
+    Purpose Local RefSeq ITS BLAST, TaxonKit lineage, and taxonomy reconciliation
+
+%environment
+    export PATH="/opt/micromamba/envs/blast-taxonomy/bin:${PATH}"
+    export LC_ALL=C
+    export LANG=C
+    export PYTHONNOUSERSITE=1
+    export PYTHONDONTWRITEBYTECODE=1
+
+%post
+    set -eux
+
+    MAMBA_EXE="$(command -v micromamba)"
+    export MAMBA_ROOT_PREFIX="/opt/micromamba"
+
+    "${MAMBA_EXE}" create \
+        --yes \
+        --quiet \
+        --name blast-taxonomy \
+        --channel conda-forge \
+        --channel bioconda \
+        python=3.10 \
+        blast=2.16.0 \
+        taxonkit=0.18.0 \
+        csvtk=0.30.0 \
+        pandas=2.2.3 \
+        numpy=1.26.4 \
+        pyyaml=6.0.2
+
+    "${MAMBA_EXE}" clean \
+        --all \
+        --yes
+
+    mkdir -p /opt/itsdetector
+    chmod -R a+rX /opt/micromamba
+
+%test
+    set -eu
+
+    blastn -version
+    blastdbcmd -version
+    taxonkit version
+    csvtk version
+    python3 -c "import pandas; import numpy; import yaml; print('Python packages: OK')"
+
+%runscript
+    exec "$@"
