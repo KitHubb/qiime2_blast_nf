@@ -6,9 +6,11 @@
 
 ### 1. Purpose
 
-QIIME_blast is a standalone Nextflow DSL2 workflow, derived from ITSdetector, for BLAST-based taxonomy analysis of amplicon sequence variants (ASVs). It takes representative sequences and existing QIIME taxonomy, evaluates BLAST evidence, and produces classification tables and QIIME artifacts.
+QIIME_blast is a standalone Nextflow DSL2 workflow, derived from ITSdetector, for BLAST-based taxonomy analysis of **full-length 16S rRNA amplicon sequence variants (ASVs)**. It takes representative sequences and existing QIIME taxonomy, evaluates BLAST evidence, and produces classification tables and QIIME artifacts.
 
 The native backend can rescue unresolved Species while retaining the original upper ranks. Existing taxonomy can also be normalized and postprocessed **without running BLAST**. A common final reporting step handles missing ranks consistently across SILVA 138, GTDB r220 and GG2.
+
+**Current scope: full-length 16S rRNA data only.** Applying the BLAST reconciliation workflow to short-region 16S amplicons (for example, V3–V4 or V4) requires additional consideration and validation of the target region, reference database, identity/coverage thresholds and achievable taxonomic resolution. The current defaults should not be assumed to transfer directly. Related discussion: [QIIME 2 Forum — genus-level classification from 16S](https://forum.qiime2.org/t/how-to-find-the-genus-level-from-bacteria-with-from-16s-method/33791/4?u=soyeon_kim).
 
 ### 2. Nextflow and tool environment
 
@@ -147,9 +149,11 @@ These profiles use bundled synthetic inputs and check output against an expected
 
 ### 1. 도구의 목적
 
-QIIME_blast는 ITSdetector에서 파생된 독립형 Nextflow DSL2 파이프라인으로, ASV(앰플리콘 서열 변이)의 대표 서열과 기존 QIIME taxonomy를 받아 BLAST 근거를 평가하고 분류표와 QIIME artifact를 생성합니다.
+QIIME_blast는 ITSdetector에서 파생된 독립형 Nextflow DSL2 파이프라인으로, **full-length 16S rRNA ASV(앰플리콘 서열 변이)**의 대표 서열과 기존 QIIME taxonomy를 받아 BLAST 근거를 평가하고 분류표와 QIIME artifact를 생성합니다.
 
 Native backend에서는 기존 상위 분류를 유지하면서 미분류 Species를 보완할 수 있습니다. **BLAST 없이 기존 taxonomy만 정규화하거나 후가공하는 기능**도 제공합니다. SILVA 138·GTDB r220·GG2 결과의 빈 계급을 같은 규칙으로 처리해 최종 보고용 표를 만듭니다.
+
+**현재 지원 범위는 full-length 16S rRNA 데이터 전용입니다.** V3–V4, V4처럼 짧은 영역을 증폭한 16S amplicon에 BLAST 보정 기능을 적용하려면 대상 영역, 참조 DB, identity·coverage 기준 및 가능한 분류 해상도를 추가로 검토·검증해야 합니다. 현재 기본값을 그대로 적용할 수 있다고 가정하지 않습니다. 관련 논의: [QIIME 2 포럼 — 16S 기반 Genus 분류](https://forum.qiime2.org/t/how-to-find-the-genus-level-from-bacteria-with-from-16s-method/33791/4?u=soyeon_kim).
 
 ### 2. Nextflow 및 내부 도구 환경·버전
 
